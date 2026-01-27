@@ -22,6 +22,25 @@ export class UsersService {
     return user ? this.stripPassword(user) : null;
   }
 
+  async findAll(): Promise<SafeUser[]> {
+    const users = await this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    console.log("get all function was called.")
+    return users.map((user) => this.stripPassword(user));
+  }
+
+  async updateUserRole(
+    id: string,
+    role: Prisma.UserUpdateInput['role'],
+  ): Promise<SafeUser> {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { role },
+    });
+    return this.stripPassword(user);
+  }
+
   stripPassword(user: User): SafeUser {
     const { password, ...rest } = user;
     return rest;
