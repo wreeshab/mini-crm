@@ -1,98 +1,90 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## Mini CRM API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A small CRM backend built with NestJS and Prisma. It supports JWT-based authentication, role-based users (admin/employee), customer management with search and pagination, and task assignment/status updates. Docker and Render configs are included for deployment, plus a Postman collection for quick testing.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
+- NestJS, TypeScript
+- Prisma ORM with PostgreSQL
+- JWT auth, role guards (admin/employee)
+- Swagger for API docs
 
-## Description
+## Prerequisites
+- Node.js 22+ and npm
+- PostgreSQL (local or hosted). A docker-compose file is provided for local DB/pgAdmin.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
+## Getting Started
+1) Clone the repo
 ```bash
-$ npm install
+git clone https://github.com/wreeshab/mini-crm.git
+cd mini-crm
+```
+2) Install dependencies
+```bash
+npm install
+```
+3) Copy env template and fill values
+```bash
+cp .env.example .env
+```
+4) Make sure PostgreSQL is running and the DATABASE_URL points to it. For local Docker:
+```bash
+docker compose up -d postgres
 ```
 
-## Compile and run the project
+## Environment Variables (.env)
+See `.env.example` for the full list. Core values:
+- DATABASE_URL – e.g. postgresql://crm_user:crm_pass@localhost:5432/crm_db?schema=public
+- JWT_SECRET – any strong secret for signing tokens
+- PORT – optional (defaults to 3000)
 
+## Database Migrations (Prisma)
+Run migrations after setting up env and DB:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npx prisma migrate deploy    # apply existing migrations
+# or during local dev
+npx prisma migrate dev --name init
+```
+If you need the Prisma client regenerated (usually automatic in scripts):
+```bash
+npx prisma generate
 ```
 
-## Run tests
-
+## Running the Server
+- Development (watch mode):
 ```bash
-# unit tests
-$ npm run test
+npm run start:dev
+```
+- Production build and run:
+```bash
+npm run build
+npm run start:prod
+```
+The API prefix is /api. Swagger is served at http://localhost:3000/api/docs (or the port you set).
 
-# e2e tests
-$ npm run test:e2e
+## Swagger
+Open the docs at: http://localhost:3000/api/docs
+Bearer auth is configured under the access-token scheme.
 
-# test coverage
-$ npm run test:cov
+## Postman Collection / cURL
+- Postman collection: mini-crm.postman_collection.json (import into Postman). It covers auth, users, customers, and tasks.
+- Example cURL: login to get a token
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@test.com","password":"password123"}'
+```
+Use the returned JWT as Authorization: Bearer <token> for protected endpoints.
+
+## Testing
+```bash
+npm test
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+## Docker / Deployment
+- Local DB only: docker compose up -d postgres (pgAdmin exposed at 5050).
+- Build API image:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker build -t mini-crm-api .
+docker run --env-file .env -p 3000:3000 mini-crm-api
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Render deployment: see render.yaml (expects DATABASE_URL and JWT_SECRET environment variables in the Render dashboard).
