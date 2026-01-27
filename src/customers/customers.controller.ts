@@ -69,29 +69,32 @@ export class CustomersController {
   @Get()
   @Roles(Role.ADMIN, Role.EMPLOYEE)
   @ApiOperation({
-    summary: 'Get all customers with pagination',
+    summary: 'Get all customers with pagination and search',
     description:
-      'Retrieve a paginated list of customers. Accessible by admins and employees.',
+      'Retrieve a paginated list of customers with optional search filtering. ' +
+      'Search is performed across name, email, phone, and company fields (case-insensitive). ' +
+      'Leave search empty or omit it to return all customers. ' +
+      'Accessible by admins and employees.',
   })
   @ApiQuery({
     name: 'page',
     required: false,
-    description: 'Page number (default: 1)',
+    description: 'Page number (default: 1, min: 1)',
     example: 1,
     type: Number,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
-    description: 'Number of records per page (default: 10)',
+    description: 'Number of records per page (default: 10, min: 1, max: 100)',
     example: 10,
     type: Number,
   })
   @ApiQuery({
     name: 'search',
     required: false,
-    description: 'Search by name, email, phone, or company (case-insensitive)',
-    example: 'john',
+    description: 'Optional search term. Filters customers by name, email, phone, or company. Case-insensitive partial match. Leave empty to fetch all customers.',
+    example: 'acme',
     type: String,
   })
   @ApiResponse({
