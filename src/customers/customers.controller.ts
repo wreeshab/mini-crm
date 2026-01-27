@@ -87,6 +87,13 @@ export class CustomersController {
     example: 10,
     type: Number,
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search by name, email, phone, or company (case-insensitive)',
+    example: 'john',
+    type: String,
+  })
   @ApiResponse({
     status: 200,
     description: 'Paginated list of customers retrieved successfully',
@@ -95,8 +102,9 @@ export class CustomersController {
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
   ): Promise<PaginatedCustomersResponseDto> {
-    return this.customersService.findAll(page, limit);
+    return this.customersService.findAll(page, limit, search);
   }
 
   @Get(':id')

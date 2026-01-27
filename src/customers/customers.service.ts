@@ -3,7 +3,7 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { Customer } from '@prisma/client';
+import { Customer, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -34,12 +34,24 @@ export class CustomersService {
   async findAll(
     page: number = 1,
     limit: number = 10,
+    search?: string,
   ): Promise<PaginatedCustomersResponseDto> {
     // Normalize incoming pagination values
     const normalizedLimit = Math.min(Math.max(limit || 10, 1), 100);
     const normalizedPage = Math.max(page || 1, 1);
 
-    const totalRecords = await this.prisma.customer.count();
+    const where: Prisma.CustomerWhereInput = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { phone: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { company: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          ],
+        }
+      : {};
+
+    const totalRecords = await this.prisma.customer.count({ where });
     const totalPages = totalRecords === 0
       ? 0
       : Math.ceil(totalRecords / normalizedLimit);
@@ -51,6 +63,7 @@ export class CustomersService {
     const skip = totalPages === 0 ? 0 : (currentPage - 1) * normalizedLimit;
 
     const data = await this.prisma.customer.findMany({
+      where,
       skip,
       take: normalizedLimit,
       orderBy: { createdAt: 'desc' },

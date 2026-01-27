@@ -17,6 +17,12 @@ enum Role {
   EMPLOYEE
 }
 
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -25,6 +31,7 @@ model User {
   role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tasks     Task[]   @relation("UserTasks")
 }
 
 model Customer {
@@ -35,4 +42,19 @@ model Customer {
   company   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tasks     Task[]
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(PENDING)
+  assignedTo  String
+  customerId  String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  assignedUser User      @relation("UserTasks", fields: [assignedTo], references: [id])
+  customer     Customer  @relation(fields: [customerId], references: [id])
 }
