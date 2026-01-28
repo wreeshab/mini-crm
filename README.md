@@ -87,4 +87,38 @@ npm test
 docker build -t mini-crm-api .
 docker run --env-file .env -p 3000:3000 mini-crm-api
 ```
-- Render deployment: see render.yaml (expects DATABASE_URL and JWT_SECRET environment variables in the Render dashboard).
+
+## Deploy to Railway
+
+### Step 1: Push to GitHub
+```bash
+git push origin main
+```
+
+### Step 2: Deploy on Railway
+1. Go to https://railway.app
+2. Sign up with GitHub
+3. Click **New Project** → **Deploy from GitHub repo**
+4. Select `wreeshab/mini-crm`
+5. Railway auto-detects Docker and starts building
+
+### Step 3: Add Environment Variables
+In Railway dashboard → Your service → **Variables**:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Any secure random string
+
+### Step 4: PostgreSQL Database
+Railway can host your database too:
+1. In Railway project → **+ Add** → **Database** → **PostgreSQL**
+2. Railway auto-populates `DATABASE_URL`
+3. Done! Database is ready.
+
+### Verify Deployment
+```bash
+# Get your Railway URL from dashboard
+curl https://mini-crm-prod-<random>.railway.app/api/docs
+```
+
+See [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) for detailed guide.
+
+**Free tier:** $5/month credits (covers this app easily)
